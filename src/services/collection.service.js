@@ -1,20 +1,45 @@
-import mongoose from "mongoose";
+import { getDB } from "../DB/connection.js";
 
-export const createBooks = () =>
-  mongoose.connection.createCollection("books", {
+// ====== CREATE BOOKS COLLECTION WITH VALIDATION ======
+export const createBooks = async () => {
+  const db = getDB();
+
+  return await db.createCollection("books", {
     validator: {
       $jsonSchema: {
         required: ["title"],
-        properties: { title: { bsonType: "string", minLength: 1 } },
+        properties: {
+          title: { bsonType: "string", minLength: 1 },
+        },
       },
     },
   });
+};
 
-export const createAuthors = () =>
-  mongoose.connection.collection("authors").insertOne({ name: "Author" });
+// ====== CREATE AUTHORS + INSERT DEFAULT ======
+export const createAuthors = async () => {
+  const db = getDB();
 
-export const createLogs = () =>
-  mongoose.connection.createCollection("logs", { capped: true, size: 1024 * 1024 });
+  return await db.collection("authors").insertOne({
+    name: "Author",
+  });
+};
 
-export const createIndex = () =>
-  mongoose.connection.collection("books").createIndex({ title: 1 });
+// ====== CREATE LOGS  ======
+export const createLogs = async () => {
+  const db = getDB();
+
+  return await db.createCollection("logs", {
+    capped: true,
+    size: 1024 * 1024,
+  });
+};
+
+// ====== CREATE INDEX ======
+export const createIndex = async () => {
+  const db = getDB();
+
+  return await db.collection("books").createIndex({
+    title: 1,
+  });
+};

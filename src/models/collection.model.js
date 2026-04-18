@@ -1,8 +1,21 @@
-import mongoose from "mongoose";
+const Collection = {
+  collection: "collections",
 
-const collectionSchema = new mongoose.Schema({
-  name: String,
-  items: [String],
-});
+  validate(data) {
+    if (!data.name || typeof data.name !== "string") {
+      return "Name is required and must be a string";
+    }
 
-export default mongoose.model("Collection", collectionSchema);
+    if (data.items && !Array.isArray(data.items)) {
+      return "Items must be an array";
+    }
+
+    if (data.items && !data.items.every((item) => typeof item === "string")) {
+      return "All items must be strings";
+    }
+
+    return null;
+  },
+};
+
+export default Collection;

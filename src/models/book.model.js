@@ -1,9 +1,18 @@
-import mongoose from "mongoose";
+const Book = {
+  collection: "books",
 
-const bookSchema = new mongoose.Schema({
-  title: String,
-  author: String,
-  year: Number
-});
+  validate(data) {
+    if (!data.title || typeof data.title !== "string") {
+      return "Title is required and must be a string";
+    }
+    if (!data.author || typeof data.author !== "string") {
+      return "Author is required and must be a string";
+    }
+    if (data.year && typeof data.year !== "number") {
+      return "Year must be a number";
+    }
+    return null;
+  },
+};
 
-export default mongoose.model("Book", bookSchema);
+export default Book;

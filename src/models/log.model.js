@@ -1,8 +1,20 @@
-import mongoose from "mongoose";
+const Log = {
+  collection: "logs",
 
-const logSchema = new mongoose.Schema({
-  action: String,
-  date: { type: Date, default: Date.now },
-});
+  validate(data) {
+    if (!data.action || typeof data.action !== "string") {
+      return "Action is required and must be a string";
+    }
 
-export default mongoose.model("Log", logSchema);
+    return null;
+  },
+
+  format(data) {
+    return {
+      ...data,
+      date: data.date ? new Date(data.date) : new Date(), // زي default Date.now
+    };
+  },
+};
+
+export default Log;

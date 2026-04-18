@@ -1,9 +1,11 @@
-import Log from "../models/log.model.js";
+import { getDB } from "../DB/connection.js";
+import { ObjectId } from "mongodb";
 
 // Get all logs
 export const getLogs = async (req, res) => {
   try {
-    const logs = await Log.find();
+    const db = getDB();
+    const logs = await db.collection("logs").find().toArray();
     res.json(logs);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -13,8 +15,13 @@ export const getLogs = async (req, res) => {
 // Get log by ID
 export const getLogById = async (req, res) => {
   try {
-    const log = await Log.findById(req.params.id);
+    const db = getDB();
+    const log = await db.collection("logs").findOne({
+      _id: new ObjectId(req.params.id),
+    });
+
     if (!log) return res.status(404).json({ message: "Log not found" });
+
     res.json(log);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -24,8 +31,13 @@ export const getLogById = async (req, res) => {
 // Create new log
 export const createLog = async (req, res) => {
   try {
-    const newLog = await Log.create(req.body);
-    res.status(201).json(newLog);
+    const db = getDB();
+    const result = await db.collection("logs").insertOne(req.body);
+
+    res.status(201).json({
+      _id: result.insertedId,
+      ...req.body,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -34,9 +46,20 @@ export const createLog = async (req, res) => {
 // Update log
 export const updateLog = async (req, res) => {
   try {
-    const updatedLog = await Log.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedLog) return res.status(404).json({ message: "Log not found" });
-    res.json(updatedLog);
+    const db = getDB();
+
+    const result = await db
+      .collection("logs")
+      .findOneAndUpdate(
+        { _id: new ObjectId(req.params.id) },
+        { $set: req.body },
+        { returnDocument: "after" },
+      );
+
+    if (!result.value)
+      return res.status(404).json({ message: "Log not found" });
+
+    res.json(result.value);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -45,8 +68,15 @@ export const updateLog = async (req, res) => {
 // Delete log
 export const deleteLog = async (req, res) => {
   try {
-    const deletedLog = await Log.findByIdAndDelete(req.params.id);
-    if (!deletedLog) return res.status(404).json({ message: "Log not found" });
+    const db = getDB();
+
+    const result = await db.collection("logs").deleteOne({
+      _id: new ObjectId(req.params.id),
+    });
+
+    if (result.deletedCount === 0)
+      return res.status(404).json({ message: "Log not found" });
+
     res.json({ message: "Log deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });

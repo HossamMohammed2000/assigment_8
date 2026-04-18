@@ -4,7 +4,7 @@ import {
   getLogById,
   createLog,
   updateLog,
-  deleteLog
+  deleteLog,
 } from "../controllers/log.controller.js";
 
 const router = express.Router();

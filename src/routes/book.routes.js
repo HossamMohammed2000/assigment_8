@@ -4,12 +4,10 @@ import {
   getBookById,
   createBook,
   updateBook,
-  deleteBook
+  deleteBook,
 } from "../controllers/book.controller.js";
 
 const router = express.Router();
-
-
 
 // GET all books
 router.get("/", getBooks);
